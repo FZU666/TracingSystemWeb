@@ -1,0 +1,28 @@
+server:
+  port: 9520
+
+spring:
+  profiles:
+    active: prod
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  redis:
+    host: 101.200.193.180 # Redis 服务器地址
+    database: 0 # Redis 数据库索引（默认为 0）
+    port: 9521 # Redis 服务器连接端口
+    password:   # Redis 服务器连接密码（默认为空），使用启动参数覆盖此设置
+    timeout: 300ms # 连接超时时间（毫秒）
+  datasource:
+    url: jdbc:mysql://localhost:3306/zhishedb?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password:  # 使用启动参数覆盖此设置
+
+storage:
+  path:
+    str:
+      image: images
+      file: files
+  location:
+    images: /cms-core/images
+    files: /cms-core/files
