@@ -12,13 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -113,6 +116,7 @@ public class TracingController {
             return ok("————————");
         }
 
+
         return ok("xxxxxx");
     }
 
@@ -184,6 +188,20 @@ public class TracingController {
         return ResponseEntity.ok().body(jsonArray);
     }
 
+    public MultipartFile createImg(File file){
+        try {
+            // File转换成MutipartFile
+            FileInputStream inputStream = new FileInputStream(file);
+            MultipartFile multipartFile = new MockMultipartFile(file.getName(), inputStream);
+            //注意这里面填啥，MultipartFile里面对应的参数就有啥，比如我只填了name，则
+            //MultipartFile.getName()只能拿到name参数，但是originalFilename是空。
+            return multipartFile;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+    }
     /*
      *上传图片
      * 所需参数图片，姓名,uid
@@ -194,6 +212,7 @@ public class TracingController {
     public ResponseEntity uploadImage(@RequestParam(value = "userid") String uid,
                                       @RequestParam(value = "name") String name,
                                       @RequestParam(value = "file") MultipartFile img){
+
         if (img.isEmpty()) {
             return null;
         }
@@ -206,6 +225,7 @@ public class TracingController {
 
         fileName = java.util.UUID.randomUUID() + suffixName; // 新文件名
         File dest = new File(imgPathStr + fileName);
+        String url = dest.getPath();
         /*if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
         }*/
@@ -214,11 +234,15 @@ public class TracingController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String filename = imgPathStr+ fileName;
+        //FileUploadController f = new FileUploadController();
+        //URL path = this.getClass().getClassLoader().getResource(fileName);
+        //String url =path.toString();
+        String imgurl = storageService.storeImage(createImg(dest));
+        System.out.println(createImg(dest).isEmpty());
         TargetExample t=new TargetExample();
         Target tt = new Target();
         tt.setTargetname(name);
-        tt.setImgurl(filename);
+        tt.setImgurl(imgurl);
         tt.setUid(uid);
         targetMapper.insert(tt);
 
