@@ -9,6 +9,7 @@ import com.psf.core.mapper.TargetMapper;
 import com.psf.core.model.*;
 import com.psf.core.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
@@ -40,6 +41,8 @@ public class TracingController {
     private TargetMapper targetMapper;
     @Autowired
     private ResultMapper resultMapper;
+    @Value("${storage.path.str.image}")
+    String imgPathStr = "images";
 
     @Autowired
     private RaspberryMapper raspberryMapper;
@@ -183,7 +186,7 @@ public class TracingController {
 
     /*
      *上传图片
-     * 所需参数图片，姓名
+     * 所需参数图片，姓名,uid
      *wzq
      */
     @PostMapping("/reupload")
@@ -199,22 +202,23 @@ public class TracingController {
         if(!suffixName.equals(".jpg") && !suffixName.equals(".png")){
             return null;
         }
-        String filePath = "D://temp//"; // 上传后的路径
+
+
         fileName = java.util.UUID.randomUUID() + suffixName; // 新文件名
-        File dest = new File(filePath + fileName);
-        if (!dest.getParentFile().exists()) {
+        File dest = new File(imgPathStr + fileName);
+        /*if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
-        }
+        }*/
         try {
             img.transferTo(dest);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String filename = "/temp/" + fileName;
+        String filename = imgPathStr+ fileName;
         TargetExample t=new TargetExample();
         Target tt = new Target();
         tt.setTargetname(name);
-        tt.setImgurl(fileName);
+        tt.setImgurl(filename);
         tt.setUid(uid);
         targetMapper.insert(tt);
 
