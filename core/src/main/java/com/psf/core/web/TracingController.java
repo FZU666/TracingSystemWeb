@@ -3,18 +3,10 @@ package com.psf.core.web;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
-<<<<<<< HEAD
 import com.psf.core.mapper.RaspberryMapper;
 import com.psf.core.mapper.ResultMapper;
 import com.psf.core.mapper.TargetMapper;
 import com.psf.core.model.*;
-=======
-import com.psf.core.mapper.ResultMapper;
-import com.psf.core.mapper.TargetMapper;
-import com.psf.core.model.Result;
-import com.psf.core.model.Target;
-import com.psf.core.model.TargetExample;
->>>>>>> d0da1384dc3a5ead8783b5cea341fc41300e024f
 import com.psf.core.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -24,14 +16,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-<<<<<<< HEAD
 import java.util.*;
-=======
-import java.util.Date;
-import java.util.List;
->>>>>>> d0da1384dc3a5ead8783b5cea341fc41300e024f
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -94,6 +83,11 @@ public class TracingController {
         resultMapper.insert(result);
     }
 
+    /*
+     *将日期转换为字符串
+     *查询结果处使用
+     * wzq
+     */
     @InitBinder
     public void initBinder(WebDataBinder binder, WebRequest request) {
 
@@ -123,6 +117,11 @@ public class TracingController {
         return new SimpleDateFormat(formatType).format(data);
     }
 
+    /*
+     *获取查询结果
+     * 所取参数姓名，uid
+     *wzq
+     */
     @GetMapping("/getresult")
     @ResponseBody
     public ResponseEntity getResult(String uid,  String name){
@@ -130,7 +129,6 @@ public class TracingController {
         TargetExample t = new TargetExample();
         ResultExample res = new ResultExample();
         t.createCriteria().andTargetnameEqualTo(name);
-        //resultMapper.selectByExample();
         List<Target> ex =  targetMapper.selectByExample(t);
         Target tar = ex.get(0);
         int tid = tar.getTid();
@@ -140,29 +138,17 @@ public class TracingController {
         List<String> rid = new ArrayList<String>();
         List<String>  time = new ArrayList<String>();
         List<String>  address = new ArrayList<String>();
-        //System.out.println(re.toString());
         for(int i = 0;i<m;i++){
             Result r = re.get(i);
-            //System.out.println(r.toString());
             rid.add(r.getRid());
             time.add(dateToString(r.getDiscoverytime(),sdf));
         }
-        //System.out.println(rid);
         ListIterator<String> listIterator = rid.listIterator();
         while (listIterator.hasNext()){
             RaspberryExample ras = new RaspberryExample();
             ras.createCriteria().andRidEqualTo(listIterator.next());
-            //System.out.println(ras);
             List<Raspberry> rasp = raspberryMapper.selectByExample(ras);
-            //System.out.println(rasp);
             address.add(rasp.get(0).getAddress());
-
-            /*
-            ListIterator<Raspberry> rasIterator = rasl.listIterator();
-            while (rasIterator.hasNext()){
-            address.add( rasIterator.next().getAddress());
-            }
-            */
         }
         Map<String,String> map= new TreeMap<>(new Comparator<String>() {
 
@@ -177,7 +163,6 @@ public class TracingController {
         while(timeIterator.hasNext()&&addressIterator.hasNext()){
             map.put(timeIterator.next(),addressIterator.next());
         }
-        //System.out.println(map);
         JSONArray jsonArray = new JSONArray();
 
         Set<String> ks = map.keySet();
@@ -196,11 +181,42 @@ public class TracingController {
         return ResponseEntity.ok().body(jsonArray);
     }
 
+    /*
+     *上传图片
+     * 所需参数图片，姓名
+     *wzq
+     */
     @PostMapping("/reupload")
     @ResponseBody
-    public ResponseEntity uploadImage(@RequestParam(value = "image") MultipartFile image,@RequestParam(value = "name") String name){
-
-
+    public ResponseEntity uploadImage(@RequestParam(value = "userid") String uid,
+                                      @RequestParam(value = "name") String name,
+                                      @RequestParam(value = "file") MultipartFile img){
+        if (img.isEmpty()) {
+            return null;
+        }
+        String fileName = img.getOriginalFilename();  // 文件名
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
+        if(!suffixName.equals(".jpg") && !suffixName.equals(".png")){
+            return null;
+        }
+        String filePath = "D://temp//"; // 上传后的路径
+        fileName = java.util.UUID.randomUUID() + suffixName; // 新文件名
+        File dest = new File(filePath + fileName);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        try {
+            img.transferTo(dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String filename = "/temp/" + fileName;
+        TargetExample t=new TargetExample();
+        Target tt = new Target();
+        tt.setTargetname(name);
+        tt.setImgurl(fileName);
+        tt.setUid(uid);
+        targetMapper.insert(tt);
 
         return ResponseEntity.ok("");
     }
