@@ -111,39 +111,14 @@ public class FileUploadController {
 	public ResponseEntity<Object> handleAvatarUpload(@RequestParam(value = "userid") String uid,
 													 @RequestParam(value = "name") String name,
 													 @RequestParam("file") MultipartFile file) {
-		//String fileName = file.getOriginalFilename();  // 文件名
 
-		//File dest = new File(imageRootLocation + fileName);
-		//String url = storageService.store(createImg(dest), imageRootLocation);
-		/*try {
-			file.transferTo(imageRootLocation);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			file.transferTo(new File(imageRootLocation+file.getOriginalFilename()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println(file.getOriginalFilename());
-		/*try {
-			file.transferTo(imageRootLocation);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		System.out.println(imageRootLocation);
 		String url = storageService.store(file,imageRootLocation);
-		System.out.println(imageRootLocation);
-		//TargetExample t=new TargetExample();
 		Target tt = new Target();
 		tt.setTargetname(name);
 		tt.setImgurl(url);
 		tt.setUid(uid);
 		targetMapper.insert(tt);
-
-		//log.info("You successfully uploaded " + file.getOriginalFilename() + "!");
 		return ResponseEntity.ok().body(url);
-		//return ResponseEntity.noContent().build();
 	}
 
 	/**

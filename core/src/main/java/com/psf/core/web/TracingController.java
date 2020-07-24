@@ -181,7 +181,7 @@ public class TracingController {
 
             String value = map.get(key);
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("time:", key);
+            jsonObject.put("time", key);
             jsonObject.put("address", value);
             jsonArray.add(jsonObject);
         }
