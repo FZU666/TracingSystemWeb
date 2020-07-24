@@ -1,5 +1,7 @@
 package com.psf.core.web;
 
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import com.psf.core.config.StorageProperties;
 import com.psf.core.mapper.TargetMapper;
 import com.psf.core.model.Target;
@@ -118,7 +120,11 @@ public class FileUploadController {
 		tt.setImgurl(url);
 		tt.setUid(uid);
 		targetMapper.insert(tt);
-		return ResponseEntity.ok().body(url);
+		JSONArray jsonArray = new JSONArray();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("status", 200);
+		jsonArray.add(jsonObject);
+		return ResponseEntity.ok().body(jsonArray);
 	}
 
 	/**

@@ -135,7 +135,7 @@ public class TracingController {
         String sdf = "yyyy-MM-dd HH:mm:ss";
         TargetExample t = new TargetExample();
         ResultExample res = new ResultExample();
-        t.createCriteria().andTargetnameEqualTo(name);
+        t.createCriteria().andTargetnameEqualTo(name).andUidEqualTo(uid);
         List<Target> ex =  targetMapper.selectByExample(t);
         Target tar = ex.get(0);
         int tid = tar.getTid();
